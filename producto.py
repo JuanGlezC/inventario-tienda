@@ -1,6 +1,6 @@
 from dataclasses import dataclass
 import uuid
-from excepciones import NombreInvalidoError,SkuInvalidoError,StockInvalidoError,PrecioInvalidoError
+from excepciones import NombreInvalidoError,SkuInvalidoError,StockInvalidoError,PrecioInvalidoError,CantidadInvalidaError,StockInsuficienteError
 import re
 
 @dataclass
@@ -39,4 +39,15 @@ class Producto:
             raise PrecioInvalidoError(f"El precio debe ser un número: {self.precio}")
         if self.precio<=0:
             raise PrecioInvalidoError(f"Un precio no puede ser negativo o igual a 0: {self.precio}")
-        
+                
+    def vender(self, cantidad):
+        if not isinstance(cantidad, int) or cantidad <= 0:
+            raise CantidadInvalidaError(f"La cantidad debe ser un entero mayor que 0: {cantidad!r}")
+        if cantidad > self.stock:
+            raise StockInsuficienteError(f"Stock insuficiente: hay {self.stock} y se piden {cantidad}")
+        self.stock -= cantidad
+
+    def reponer(self,cantidad):
+        if not isinstance(cantidad,int) or cantidad <= 0:
+            raise CantidadInvalidaError(f"La cantidad debe ser un entero mayor que 0: {cantidad!r}")
+        self.stock += cantidad

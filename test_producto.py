@@ -1,5 +1,5 @@
 from producto import Producto
-from excepciones import NombreInvalidoError,SkuInvalidoError,PrecioInvalidoError,StockInvalidoError
+from excepciones import NombreInvalidoError,SkuInvalidoError,PrecioInvalidoError,StockInvalidoError,StockInsuficienteError,CantidadInvalidaError
 import pytest
 
 @pytest.fixture
@@ -61,3 +61,45 @@ def test_sku_minusculas_se_crea_correctamente():
 def test_stock_cero_se_crea_correctamente():
     producto=Producto(nombre="camiseta",sku="ABB-1235",stock=0,precio=11.0)
     assert producto.stock==0
+
+def test_vender_reduce_stock():
+    producto=Producto(nombre="camiseta",sku="ABB-1224",stock=2,precio=10.0)
+    producto.vender(1)
+    assert producto.stock==1
+
+def test_reponer_aumenta_stock():
+    producto=Producto(nombre="camiseta",sku="ABB-1223",stock=3,precio=10.0)
+    producto.reponer(1)
+    assert producto.stock==4
+
+def test_stock_queda_a_cero():
+    producto=Producto(nombre="camiseta",sku="ABB-1223",stock=3,precio=10.0)
+    producto.vender(producto.stock)
+    assert producto.stock==0
+
+def test_stock_insuficiente():
+
+    producto=Producto(nombre="camiseta",sku="ABB-1223",stock=3,precio=10.0)
+    with pytest.raises(StockInsuficienteError):
+        producto.vender(4)
+    assert producto.stock==3
+
+def test_cantidad_invalida_lanza_excepcion():
+    producto=Producto(nombre="camiseta",sku="ABB-1223",stock=3,precio=10.0)
+    with pytest.raises(CantidadInvalidaError):
+        producto.reponer(0)
+    assert producto.stock==3
+   
+@pytest.mark.parametrize("cantidad", [0, -1, 5.5, "3", None])
+def test_vender_cantidad_invalida(cantidad):
+    producto=Producto(nombre="camiseta",sku="ABB-1223",stock=3,precio=10.0)
+    with pytest.raises(CantidadInvalidaError):
+        producto.vender(cantidad)
+    assert producto.stock==3
+
+@pytest.mark.parametrize("cantidad", [0, -1, 5.5, "3", None])
+def test_reponer_cantidad_invalida(cantidad):
+    producto=Producto(nombre="camiseta",sku="ABB-1223",stock=3,precio=10.0)
+    with pytest.raises(CantidadInvalidaError):
+        producto.reponer(cantidad)
+    assert producto.stock==3

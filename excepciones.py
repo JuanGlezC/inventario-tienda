@@ -12,3 +12,8 @@ class StockInvalidoError(Exception):
 
 class PrecioInvalidoError(Exception):
     pass
+
+class CantidadInvalidaError(Exception):
+    pass
+class StockInsuficienteError(Exception):
+    pass
